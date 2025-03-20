@@ -22,6 +22,12 @@ public actor SRTConnection: NetworkConnection {
     public private(set) var uri: URL?
     /// This instance connect to server(true) or not(false)
     @Published public private(set) var connected = false
+    /// The SRT's performance data.
+    public var performanceData: SRTPerformanceData? {
+        get async {
+            return await socket?.performanceData
+        }
+    }
 
     private var socket: SRTSocket? {
         didSet {
@@ -51,12 +57,11 @@ public actor SRTConnection: NetworkConnection {
             }
         }
     }
-    private var networkMonitor: NetworkMonitor?
-
-    /// The SRT's performance data.
-    public var performanceData: SRTPerformanceData? {
-        get async {
-            return await socket?.performanceData
+    private var networkMonitor: NetworkMonitor? {
+        didSet {
+            Task {
+                await oldValue?.stopRunning()
+            }
         }
     }
 
