@@ -29,50 +29,40 @@ public actor SRTConnection: NetworkConnection {
         }
     }
 
-    private var socket: SRTSocket? {
-        didSet {
-            Task {
-                guard let socket else {
-                    return
-                }
-                let networkMonitor = await socket.makeNetworkMonitor()
-                self.networkMonitor = networkMonitor
-                await networkMonitor.startRunning()
-                for await event in await networkMonitor.event {
-                    for stream in streams {
-                        await stream.dispatch(event)
-                    }
-                }
-            }
-            Task {
-                await oldValue?.stopRunning()
-            }
-        }
-    }
+    private var socket: SRTSocket?
     private var streams: [SRTStream] = []
-    private var listener: SRTSocket? {
-        didSet {
-            Task {
-                await oldValue?.stopRunning()
-            }
-        }
-    }
-    private var networkMonitor: NetworkMonitor? {
-        didSet {
-            Task {
-                await oldValue?.stopRunning()
-            }
-        }
-    }
+    private var listener: SRTSocket?
+    private var networkMonitor: NetworkMonitor?
 
     /// Creates an object.
     public init() {
         srt_startup()
+        socket = SRTSocket()
     }
 
     deinit {
         streams.removeAll()
         srt_cleanup()
+    }
+
+    /// Gets a SRTSocketOption.
+    public func getSocketOption(_ name: SRTSocketOption.Name) async throws -> SRTSocketOption? {
+        try await socket?.getSocketOption(name)
+    }
+
+    /// Sets a SRTSocketOption.
+    public func setSocketOption(_ option: SRTSocketOption) async throws {
+        if connected {
+            guard option.name.restriction == .post else {
+                throw Error.invalidState
+            }
+            try await socket?.setSocketOption(option)
+        } else {
+            guard option.name.restriction == .pre else {
+                throw Error.invalidState
+            }
+            try await socket?.setSocketOption(option)
+        }
     }
 
     /// Open a two-way connection to an application on SRT Server.
@@ -112,24 +102,37 @@ public actor SRTConnection: NetworkConnection {
         do {
             let options = SRTSocketOption.from(uri: uri)
             let addr = sockaddr_in(mode.host(host), port: UInt16(port))
-            let socket = SRTSocket()
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
                 Task {
                     do {
-                        try await socket.open(addr, mode: mode, options: options)
+                        try await socket?.open(addr, mode: mode, options: options)
                         self.uri = uri
                         switch mode {
                         case .caller:
-                            self.socket = socket
+                            break
                         case .listener:
-                            self.listener = socket
-                            self.socket = try await socket.accept()
-                            self.listener = nil
+                            listener = socket
+                            socket = try await listener?.accept()
+                            await listener?.stopRunning()
+                            listener = nil
                         }
-                        connected = await self.socket?.status == .connected
+                        connected = await socket?.status == .connected
                         continuation.resume()
                     } catch {
                         continuation.resume(throwing: error)
+                    }
+                }
+            }
+            Task {
+                guard let socket else {
+                    return
+                }
+                let networkMonitor = await socket.makeNetworkMonitor()
+                self.networkMonitor = networkMonitor
+                await networkMonitor.startRunning()
+                for await event in await networkMonitor.event {
+                    for stream in streams {
+                        await stream.dispatch(event)
                     }
                 }
             }
@@ -143,14 +146,18 @@ public actor SRTConnection: NetworkConnection {
         guard uri != nil else {
             return
         }
+        await networkMonitor?.stopRunning()
         networkMonitor = nil
         for stream in streams {
             await stream.close()
         }
+        await socket?.stopRunning()
         socket = nil
+        await listener?.stopRunning()
         listener = nil
         uri = nil
         connected = false
+        socket = SRTSocket()
     }
 
     func send(_ data: Data) async {
