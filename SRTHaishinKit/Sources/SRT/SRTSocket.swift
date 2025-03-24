@@ -83,7 +83,7 @@ final actor SRTSocket {
     private(set) var isRunning = false
     private var perf: CBytePerfMon = .init()
     private var socket: SRTSOCKET = SRT_INVALID_SOCK
-    private var options: [SRTSocketOption: any Sendable] = [:]
+    private var options: [SRTSocketOption] = []
     private var outputs: AsyncStream<Data>.Continuation? {
         didSet {
             oldValue?.finish()
@@ -96,6 +96,7 @@ final actor SRTSocket {
     private lazy var incomingBuffer: Data = .init(count: Int(windowSizeC))
 
     init() {
+        socket = srt_create_socket()
     }
 
     init(socket: SRTSOCKET) async throws {
@@ -108,12 +109,15 @@ final actor SRTSocket {
         }
     }
 
-    func open(_ addr: sockaddr_in, mode: SRTMode, options: [SRTSocketOption: any Sendable] = [:]) async throws {
-        guard socket == SRT_INVALID_SOCK else {
-            return
-        }
-        // prepare socket
-        socket = srt_create_socket()
+    func getSocketOption(_ name: SRTSocketOption.Name) throws -> SRTSocketOption {
+        return try SRTSocketOption(name: name, socket: socket)
+    }
+
+    func setSocketOption(_ option: SRTSocketOption) throws {
+        try option.setSockflag(socket)
+    }
+
+    func open(_ addr: sockaddr_in, mode: SRTMode, options: [SRTSocketOption] = []) async throws {
         if socket == SRT_INVALID_SOCK {
             throw makeSocketError()
         }
@@ -176,8 +180,8 @@ final actor SRTSocket {
         }
     }
 
-    private func configure(_ binding: SRTSocketOption.Binding) -> Bool {
-        let failures = SRTSocketOption.configure(socket, binding: binding, options: options)
+    private func configure(_ binding: SRTSocketOption.Restriction) -> Bool {
+        let failures = SRTSocketOption.configure(socket, restriction: binding, options: options)
         guard failures.isEmpty else {
             logger.error(failures)
             return false
