@@ -93,28 +93,25 @@ public actor SRTConnection: NetworkConnection {
     /// - srt://:9000?mode=listener
     ///   - Wait for connections as a server.
     public func connect(_ uri: URL?) async throws {
-        guard let uri, let scheme = uri.scheme, let host = uri.host, let port = uri.port, scheme == "srt" else {
-            throw Error.unsupportedUri(uri)
-        }
-        guard let mode = SRTSocketOption.getMode(uri: uri) else {
+        guard let url = SRTSocketURL(uri) else {
             throw Error.unsupportedUri(uri)
         }
         do {
-            let options = SRTSocketOption.from(uri: uri)
-            let addr = sockaddr_in(mode.host(host), port: UInt16(port))
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
                 Task {
                     do {
-                        try await socket?.open(addr, mode: mode, options: options)
+                        try await socket?.open(url)
                         self.uri = uri
-                        switch mode {
+                        switch url.mode {
                         case .caller:
                             break
                         case .listener:
                             listener = socket
-                            socket = try await listener?.accept()
+                            socket = try await listener?.accept(url.options)
                             await listener?.stopRunning()
                             listener = nil
+                        case .rendezvous:
+                            break
                         }
                         connected = await socket?.status == .connected
                         continuation.resume()
@@ -190,19 +187,5 @@ public actor SRTConnection: NetworkConnection {
         if let index = streams.firstIndex(where: { $0 === stream }) {
             streams.remove(at: index)
         }
-    }
-
-    private func sockaddr_in(_ host: String, port: UInt16) -> sockaddr_in {
-        var addr: sockaddr_in = .init()
-        addr.sin_family = sa_family_t(AF_INET)
-        addr.sin_port = CFSwapInt16BigToHost(UInt16(port))
-        if inet_pton(AF_INET, host, &addr.sin_addr) == 1 {
-            return addr
-        }
-        guard let hostent = gethostbyname(host), hostent.pointee.h_addrtype == AF_INET else {
-            return addr
-        }
-        addr.sin_addr = UnsafeRawPointer(hostent.pointee.h_addr_list[0]!).assumingMemoryBound(to: in_addr.self).pointee
-        return addr
     }
 }
