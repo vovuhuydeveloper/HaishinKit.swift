@@ -4,10 +4,13 @@ import Testing
 import libsrt
 @testable import SRTHaishinKit
 
-@Suite struct SRTSocketOptionTests {
+@Suite actor SRTSocketOptionTests {
     @Test func parseUri() async {
-        let url = URL(string: "srt://localhost:9000?passphrase=1234&streamid=5678&latency=1935&sndsyn=1&transtype=file")
-        let options = SRTSocketOption.from(uri: url)
+        guard
+            let url = SRTSocketURL(URL(string: "srt://localhost:9000?passphrase=1234&streamid=5678&latency=1935&sndsyn=1&transtype=file")) else {
+            return
+        }
+        let options = url.options
         #expect(options.first { $0.name == .passphrase }?.stringValue == "1234")
         #expect(options.first { $0.name == .streamid }?.stringValue == "5678")
         #expect(options.first { $0.name == .latency }?.intValue == 1935)
@@ -66,12 +69,21 @@ import libsrt
         #expect(result?.boolValue == false)
     }
 
+    @Test func rendezvous() throws {
+        guard
+            let url = SRTSocketURL(URL(string: "srt://:9000?adapter=0.0.0.0")) else {
+            return
+        }
+        #expect(url.local != nil)
+        #expect(url.mode == SRTMode.rendezvous)
+    }
+
     @Test func mode() throws {
-        #expect(SRTSocketOption.getMode(uri: URL(string: "srt://192.168.1.1:9000?mode=caller")) == SRTMode.caller)
-        #expect(SRTSocketOption.getMode(uri: URL(string: "srt://192.168.1.1:9000?mode=client")) == SRTMode.caller)
-        #expect(SRTSocketOption.getMode(uri: URL(string: "srt://192.168.1.1:9000?mode=listener")) == SRTMode.listener)
-        #expect(SRTSocketOption.getMode(uri: URL(string: "srt://192.168.1.1:9000?mode=server")) == SRTMode.listener)
-        #expect(SRTSocketOption.getMode(uri: URL(string: "srt://192.168.1.1:9000")) == SRTMode.caller)
-        #expect(SRTSocketOption.getMode(uri: URL(string: "srt://:9000")) == SRTMode.listener)
+        #expect(SRTSocketURL(URL(string: "srt://192.168.1.1:9000?mode=caller"))?.mode == SRTMode.caller)
+        #expect(SRTSocketURL(URL(string: "srt://192.168.1.1:9000?mode=client"))?.mode == SRTMode.caller)
+        #expect(SRTSocketURL(URL(string: "srt://192.168.1.1:9000?mode=listener"))?.mode == SRTMode.listener)
+        #expect(SRTSocketURL(URL(string: "srt://192.168.1.1:9000?mode=server"))?.mode == SRTMode.listener)
+        #expect(SRTSocketURL(URL(string: "srt://192.168.1.1:9000"))?.mode == SRTMode.caller)
+        #expect(SRTSocketURL(URL(string: "srt://:9000"))?.mode == SRTMode.listener)
     }
 }

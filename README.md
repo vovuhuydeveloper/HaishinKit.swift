@@ -42,7 +42,7 @@ Project name    |Notes       |License
   - [x] Native (RTMP over SSL/TLS)
 - [x] [Enhanced RTMP](HaishinKit/Sources/Docs.docc/E-RTMP.md)
 
-### ✏️ [SRT(beta)](SRTHaishinKit/Sources/Docs.docc/index.md)
+### ✏️ [SRT](SRTHaishinKit/Sources/Docs.docc/index.md)
 - Ingest
   - H264, HEVC and AAC support.
 - Playback
@@ -50,7 +50,7 @@ Project name    |Notes       |License
 - SRT Mode
   - [x] caller
   - [x] listener
-  - [ ] rendezvous
+  - [x] rendezvous
 
 ### ✏️ [MOQT(alpha)](MoQTHaishinKit/Sources/Docs.docc/index.md)
 > [!NOTE]
