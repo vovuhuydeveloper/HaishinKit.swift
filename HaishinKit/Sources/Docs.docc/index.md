@@ -86,7 +86,9 @@ Task {
 ```
 
 ### Authentication
+It supports FME-compatible authentication. Some other services may use their own unique authentication methods, so connection may not be possible in those cases.
 ```swift
 var connection = RTMPConnection()
 connection.connect("rtmp://username:password@localhost/appName/instanceName")
 ```
+
