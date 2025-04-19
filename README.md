@@ -8,7 +8,7 @@
 
 * Camera and Microphone streaming library via RTMP and SRT for iOS, macOS, tvOS and visionOS.
 * README.md contains unreleased content, which can be tested on the main branch.
-* [API Documentation](https://docs.haishinkit.com/swift/latest/documentation/haishinkit/)
+* [API Documentation](https://docs.haishinkit.com/swift/latest/documentation/)
 
 ## 💖 Sponsors
 Do you need additional support? Technical support on Issues and Discussions is provided only to contributors and academic researchers of HaishinKit. By becoming a sponsor, we can provide the support you need.
