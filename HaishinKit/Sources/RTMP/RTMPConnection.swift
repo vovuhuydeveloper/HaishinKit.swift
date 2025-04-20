@@ -245,7 +245,7 @@ public actor RTMPConnection: NetworkConnection {
     /// In some RTMP server implementations where these parameters are not supported, you can work around the issue by specifying them as shown below.
     ///
     /// ## Example code:
-    /// ```
+    /// ```swift
     /// let connection = RTMPConnection(
     ///  fourCcList: nil,
     ///  videoFourCcInfoMap: nil,
