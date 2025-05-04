@@ -24,7 +24,7 @@ final class IngestViewController: UIViewController {
     private var retryCount: Int = 0
     private var preferedStereo = false
     private let netStreamSwitcher: HKStreamSwitcher = .init()
-    private lazy var mixer = MediaMixer(multiCamSessionEnabled: true, multiTrackAudioMixingEnabled: false, useManualCapture: true)
+    private lazy var mixer = MediaMixer(multiCamSessionEnabled: true, multiTrackAudioMixingEnabled: true, useManualCapture: true)
     private lazy var audioCapture: AudioCapture = {
         let audioCapture = AudioCapture()
         audioCapture.delegate = self
