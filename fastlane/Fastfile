@@ -54,7 +54,7 @@ COMMAND
 
   Dir.chdir('../docs.haishinkit.com') do
     sh 'git add .'
-    sh "git commit -m 'Add HaishinKit.kt #{version}'"
+    sh "git commit -m 'Add HaishinKit.swift #{version}'"
     sh 'git push origin main'
   end
 
