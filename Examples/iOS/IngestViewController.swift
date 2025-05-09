@@ -16,7 +16,7 @@ final class IngestViewController: UIViewController {
     @IBOutlet private weak var fpsControl: UISegmentedControl!
     @IBOutlet private weak var effectSegmentControl: UISegmentedControl!
     @IBOutlet private weak var audioDevicePicker: UIPickerView!
-    @IBOutlet private weak var audioMonoStereoSegmentCOntrol: UISegmentedControl!
+    @IBOutlet private weak var audioMonoStereoSegmentControl: UISegmentedControl!
 
     @ScreenActor
     private var currentEffect: (any VideoEffect)?
@@ -304,11 +304,11 @@ final class IngestViewController: UIViewController {
         logger.info(notification)
         if AVAudioSession.sharedInstance().inputDataSources?.isEmpty == true {
             setEnabledPreferredInputBuiltInMic(false)
-            audioMonoStereoSegmentCOntrol.isHidden = true
+            audioMonoStereoSegmentControl.isHidden = true
             audioDevicePicker.isHidden = true
         } else {
             setEnabledPreferredInputBuiltInMic(true)
-            audioMonoStereoSegmentCOntrol.isHidden = false
+            audioMonoStereoSegmentControl.isHidden = false
             audioDevicePicker.isHidden = false
         }
         audioDevicePicker.reloadAllComponents()
@@ -354,7 +354,7 @@ extension IngestViewController: UIPickerViewDelegate {
                     try newDataSource.setPreferredPolarPattern(.stereo)
                     logger.info("stereo")
                 } else {
-                    audioMonoStereoSegmentCOntrol.selectedSegmentIndex = 0
+                    audioMonoStereoSegmentControl.selectedSegmentIndex = 0
                     logger.info("mono")
                 }
             }
