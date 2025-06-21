@@ -3,7 +3,7 @@ import Combine
 import Foundation
 
 // MARK: -
-/// The RTMPConneciton class create a two-way RTMP connection.
+/// The RTMPConnection class create a two-way RTMP connection.
 public actor RTMPConnection: NetworkConnection {
     /// The error domain code.
     public enum Error: Swift.Error {
@@ -44,7 +44,7 @@ public actor RTMPConnection: NetworkConnection {
     public static let defaultFlashVer: String = "FMLE/3.0 (compatible; FMSc/1.0)"
     /// The default chunk size for RTMPConnection.
     public static let defaultChunkSizeS: Int = 1024 * 8
-    /// The default capabilities for RTMPConneciton.
+    /// The default capabilities for RTMPConnection.
     public static let defaultCapabilities: Int = 239
     /// The default object encoding for RTMPConnection class.
     public static let defaultObjectEncoding: RTMPObjectEncoding = .amf0
