@@ -15,16 +15,11 @@
 		BC33A1292CDF526C0016EEA0 /* HaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = BC33A1282CDF526C0016EEA0 /* HaishinKit */; };
 		BC33A12B2CDF526C0016EEA0 /* SRTHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = BC33A12A2CDF526C0016EEA0 /* SRTHaishinKit */; };
 		BC47FA352CE61FCF002900AE /* MoQTHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = BC47FA342CE61FCF002900AE /* MoQTHaishinKit */; };
-		BC9129852D12EB570077EFF3 /* HKStreamSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129372D12EA820077EFF3 /* HKStreamSwitcher.swift */; };
-		BC9129862D12EB570077EFF3 /* HKStreamSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129372D12EA820077EFF3 /* HKStreamSwitcher.swift */; };
-		BC9129872D12EB570077EFF3 /* HKStreamSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129372D12EA820077EFF3 /* HKStreamSwitcher.swift */; };
-		BC9129882D12EB570077EFF3 /* HKStreamSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129372D12EA820077EFF3 /* HKStreamSwitcher.swift */; };
 		BC9129892D12EB5E0077EFF3 /* Preference.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129382D12EA820077EFF3 /* Preference.swift */; };
 		BC91298A2D12EB5E0077EFF3 /* Preference.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129382D12EA820077EFF3 /* Preference.swift */; };
 		BC91298B2D12EB5E0077EFF3 /* Preference.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129382D12EA820077EFF3 /* Preference.swift */; };
 		BC91298C2D12EB5E0077EFF3 /* Preference.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129382D12EA820077EFF3 /* Preference.swift */; };
 		BC91298D2D12EB5E0077EFF3 /* Preference.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129382D12EA820077EFF3 /* Preference.swift */; };
-		BC9129D22D12EBCE0077EFF3 /* HKStreamSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129372D12EA820077EFF3 /* HKStreamSwitcher.swift */; };
 		BC912A812D12F10C0077EFF3 /* libc++.1.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BC912A802D12F0900077EFF3 /* libc++.1.tbd */; };
 		BC912DDD2D185D360077EFF3 /* MoQTHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = BC912DDC2D185D360077EFF3 /* MoQTHaishinKit */; };
 		BCD917012D3A94B100D30743 /* HaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = BCD917002D3A94B100D30743 /* HaishinKit */; };
@@ -133,7 +128,6 @@
 		BC7A0E3D2B088FA7005FB2F7 /* Example visionOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Example visionOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC91287D2D12E7540077EFF3 /* Examples.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Examples.xcodeproj; sourceTree = "<group>"; };
 		BC9128F82D12E9970077EFF3 /* Examples.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Examples.xcodeproj; sourceTree = "<group>"; };
-		BC9129372D12EA820077EFF3 /* HKStreamSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKStreamSwitcher.swift; sourceTree = "<group>"; };
 		BC9129382D12EA820077EFF3 /* Preference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preference.swift; sourceTree = "<group>"; };
 		BC912A7F2D12F0830077EFF3 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/XROS.platform/Developer/SDKs/XROS2.1.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
 		BC912A802D12F0900077EFF3 /* libc++.1.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.1.tbd"; path = "Platforms/XROS.platform/Developer/SDKs/XROS2.1.sdk/usr/lib/libc++.1.tbd"; sourceTree = DEVELOPER_DIR; };
@@ -286,7 +280,6 @@
 		2945CBB31B4BE66000104112 = {
 			isa = PBXGroup;
 			children = (
-				BC9129372D12EA820077EFF3 /* HKStreamSwitcher.swift */,
 				BC9129382D12EA820077EFF3 /* Preference.swift */,
 				BC91294C2D12EA8A0077EFF3 /* iOS */,
 				BC9129642D12EA8E0077EFF3 /* macOS */,
@@ -636,7 +629,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BC9129D22D12EBCE0077EFF3 /* HKStreamSwitcher.swift in Sources */,
 				BC91298D2D12EB5E0077EFF3 /* Preference.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -646,7 +638,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC9129892D12EB5E0077EFF3 /* Preference.swift in Sources */,
-				BC9129852D12EB570077EFF3 /* HKStreamSwitcher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -655,7 +646,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC91298A2D12EB5E0077EFF3 /* Preference.swift in Sources */,
-				BC9129862D12EB570077EFF3 /* HKStreamSwitcher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -664,7 +654,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC91298B2D12EB5E0077EFF3 /* Preference.swift in Sources */,
-				BC9129872D12EB570077EFF3 /* HKStreamSwitcher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -673,7 +662,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC91298C2D12EB5E0077EFF3 /* Preference.swift in Sources */,
-				BC9129882D12EB570077EFF3 /* HKStreamSwitcher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

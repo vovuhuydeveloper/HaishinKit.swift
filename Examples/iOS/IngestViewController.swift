@@ -18,12 +18,12 @@ final class IngestViewController: UIViewController {
     @IBOutlet private weak var audioDevicePicker: UIPickerView!
     @IBOutlet private weak var audioMonoStereoSegmentControl: UISegmentedControl!
 
+    private var session: (any Session)?
     @ScreenActor
     private var currentEffect: (any VideoEffect)?
     private var currentPosition: AVCaptureDevice.Position = .back
     private var retryCount: Int = 0
     private var preferedStereo = false
-    private let netStreamSwitcher: HKStreamSwitcher = .init()
     private lazy var mixer = MediaMixer(multiCamSessionEnabled: true, multiTrackAudioMixingEnabled: true, useManualCapture: true)
     private lazy var audioCapture: AudioCapture = {
         let audioCapture = AudioCapture()
@@ -45,12 +45,13 @@ final class IngestViewController: UIViewController {
             var videoMixerSettings = await mixer.videoMixerSettings
             videoMixerSettings.mode = .offscreen
             await mixer.setVideoMixerSettings(videoMixerSettings)
-            await netStreamSwitcher.setPreference(Preference.default)
-            if let stream = await netStreamSwitcher.stream {
-                await mixer.addOutput(stream)
-                if let view = view as? (any HKStreamOutput) {
-                    await stream.addOutput(view)
-                }
+            session = await SessionBuilderFactory.shared.make(Preference.default.makeURL())?.build()
+            guard let session else {
+                return
+            }
+            await mixer.addOutput(session.stream)
+            if let view = view as? (any HKStreamOutput) {
+                await session.stream.addOutput(view)
             }
         }
 
@@ -92,7 +93,7 @@ final class IngestViewController: UIViewController {
         logger.info("viewWillDisappear")
         super.viewWillDisappear(animated)
         Task {
-            await netStreamSwitcher.close()
+            try? await session?.close()
             await mixer.stopRunning()
             try? await mixer.attachAudio(nil)
             try? await mixer.attachVideo(nil, track: 0)
@@ -152,24 +153,22 @@ final class IngestViewController: UIViewController {
     @IBAction func on(slider: UISlider) {
         if slider == audioBitrateSlider {
             Task {
-                guard let stream = await netStreamSwitcher.stream else {
+                guard var audioSettings = await session?.stream.audioSettings else {
                     return
                 }
                 audioBitrateLabel?.text = "audio \(Int(slider.value))/kbps"
-                var audioSettings = await stream.audioSettings
                 audioSettings.bitRate = Int(slider.value * 1000)
-                await stream.setAudioSettings(audioSettings)
+                await session?.stream.setAudioSettings(audioSettings)
             }
         }
         if slider == videoBitrateSlider {
             Task {
-                guard let stream = await netStreamSwitcher.stream else {
+                guard var videoSettings = await session?.stream.videoSettings else {
                     return
                 }
                 videoBitrateLabel?.text = "video \(Int(slider.value))/kbps"
-                var videoSettings = await stream.videoSettings
                 videoSettings.bitRate = Int(slider.value * 1000)
-                await stream.setVideoSettings(videoSettings)
+                await session?.stream.setVideoSettings(videoSettings)
             }
         }
         if slider == zoomSlider {
@@ -189,9 +188,7 @@ final class IngestViewController: UIViewController {
 
     @IBAction func on(pause: UIButton) {
         Task {
-            if let stream = await netStreamSwitcher.stream as? RTMPStream {
-                _ = try? await stream.pause(true)
-            }
+            try? await (session?.stream as? RTMPStream)?.pause(true)
         }
     }
 
@@ -203,11 +200,11 @@ final class IngestViewController: UIViewController {
         Task {
             if publish.isSelected {
                 UIApplication.shared.isIdleTimerDisabled = false
-                await netStreamSwitcher.close()
+                try await session?.close()
                 publish.setTitle("●", for: [])
             } else {
                 UIApplication.shared.isIdleTimerDisabled = true
-                await netStreamSwitcher.open(.ingest)
+                try await session?.connect(.ingest)
                 publish.setTitle("■", for: [])
             }
             publish.isSelected.toggle()

@@ -2,6 +2,7 @@ import HaishinKit
 @preconcurrency import Logboard
 import MediaPlayer
 import ReplayKit
+import SRTHaishinKit
 import VideoToolbox
 
 nonisolated let logger = LBLogger.with(kHaishinKitIdentifier)
@@ -30,11 +31,15 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
             }
         }
     }
+    private var session: Session?
     private var mixer = MediaMixer(multiCamSessionEnabled: false, multiTrackAudioMixingEnabled: true)
-    private let netStreamSwitcher = HKStreamSwitcher()
     private var needVideoConfiguration = true
 
     override init() {
+        Task {
+            await SessionBuilderFactory.shared.register(RTMPSessionFactory())
+            await SessionBuilderFactory.shared.register(SRTSessionFactory())
+        }
     }
 
     override func broadcastStarted(withSetupInfo setupInfo: [String: NSObject]?) {
@@ -49,16 +54,17 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
         // mixer.audioMixerSettings.tracks[1] = .default
         isVideoRotationEnabled = false
         Task {
-            await netStreamSwitcher.setPreference(Preference.default)
-            // ReplayKit is sensitive to memory, so we limit the queue to a maximum of five items.
-            if let stream = await netStreamSwitcher.stream {
-                var videoSetting = await mixer.videoMixerSettings
-                videoSetting.mode = .passthrough
-                await stream.setVideoInputBufferCounts(5)
-                await mixer.setVideoMixerSettings(videoSetting)
-                await mixer.addOutput(stream)
+            session = await SessionBuilderFactory.shared.make(Preference.default.makeURL())?.build()
+            guard let session else {
+                return
             }
-            await netStreamSwitcher.open(.ingest)
+            // ReplayKit is sensitive to memory, so we limit the queue to a maximum of five items.
+            var videoSetting = await mixer.videoMixerSettings
+            videoSetting.mode = .passthrough
+            await session.stream.setVideoInputBufferCounts(5)
+            await mixer.setVideoMixerSettings(videoSetting)
+            await mixer.addOutput(session.stream)
+            try? await session.connect(.ingest)
         }
         // The volume of the audioApp can be obtained even when muted. A hack to synchronize with the volume.
         DispatchQueue.main.async {
@@ -74,14 +80,14 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
         case .video:
             Task {
                 if needVideoConfiguration, let dimensions = sampleBuffer.formatDescription?.dimensions {
-                    var videoSettings = await netStreamSwitcher.stream?.videoSettings
+                    var videoSettings = await session?.stream.videoSettings
                     videoSettings?.videoSize = .init(
                         width: CGFloat(dimensions.width),
                         height: CGFloat(dimensions.height)
                     )
                     videoSettings?.profileLevel = kVTProfileLevel_H264_Baseline_AutoLevel as String
                     if let videoSettings {
-                        await netStreamSwitcher.stream?.setVideoSettings(videoSettings)
+                        await session?.stream.setVideoSettings(videoSettings)
                     }
                     needVideoConfiguration = false
                 }
