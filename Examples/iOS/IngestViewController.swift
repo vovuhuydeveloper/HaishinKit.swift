@@ -23,7 +23,7 @@ final class IngestViewController: UIViewController {
     private var currentEffect: (any VideoEffect)?
     private var currentPosition: AVCaptureDevice.Position = .back
     private var retryCount: Int = 0
-    private var preferedStereo = false
+    private var preferredStereo = false
     private lazy var mixer = MediaMixer(multiCamSessionEnabled: true, multiTrackAudioMixingEnabled: true, useManualCapture: true)
     private lazy var audioCapture: AudioCapture = {
         let audioCapture = AudioCapture()
@@ -282,9 +282,9 @@ final class IngestViewController: UIViewController {
     @IBAction private func onStereoMonoChanged(_ segment: UISegmentedControl) {
         switch segment.selectedSegmentIndex {
         case 0:
-            preferedStereo = false
+            preferredStereo = false
         case 1:
-            preferedStereo = true
+            preferredStereo = true
             pickerView(audioDevicePicker, didSelectRow: audioDevicePicker.selectedRow(inComponent: 0), inComponent: 0)
         default:
             break
@@ -347,7 +347,7 @@ extension IngestViewController: UIPickerViewDelegate {
         }
         do {
             if #available(iOS 14.0, *) {
-                if preferedStereo && supportedPolarPatterns.contains(.stereo) {
+                if preferredStereo && supportedPolarPatterns.contains(.stereo) {
                     try newDataSource.setPreferredPolarPattern(.stereo)
                     logger.info("stereo")
                 } else {

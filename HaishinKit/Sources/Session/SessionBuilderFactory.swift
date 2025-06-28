@@ -24,7 +24,7 @@ public actor SessionBuilderFactory {
         return SessionBuilder(manager: self, uri: uri)
     }
 
-    /// Registers a facory.
+    /// Registers a factory.
     public func register(_ factory: some SessionFactory) {
         factories.append(factory)
     }

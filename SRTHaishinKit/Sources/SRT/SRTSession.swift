@@ -3,7 +3,9 @@ import HaishinKit
 
 actor SRTSession: Session {
     var isConnected: Bool {
-        false
+        get async {
+            await connection.connected
+        }
     }
 
     var stream: any HaishinKit.HKStream {
