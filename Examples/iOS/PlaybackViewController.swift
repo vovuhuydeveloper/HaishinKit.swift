@@ -6,7 +6,7 @@ import UIKit
 
 final class PlaybackViewController: UIViewController {
     @IBOutlet private weak var playbackButton: UIButton!
-    private let netStreamSwitcher: HKStreamSwitcher = .init()
+    private var session: (any Session)?
     private let audioPlayer = AudioPlayer(audioEngine: AVAudioEngine())
     private var pictureInPictureController: AVPictureInPictureController?
 
@@ -17,13 +17,14 @@ final class PlaybackViewController: UIViewController {
             pictureInPictureController = AVPictureInPictureController(contentSource: .init(sampleBufferDisplayLayer: layer, playbackDelegate: self))
         }
         Task {
-            await netStreamSwitcher.setPreference(Preference.default)
-            if let stream = await netStreamSwitcher.stream {
-                if let view = view as? (any HKStreamOutput) {
-                    await stream.addOutput(view)
-                }
+            session = await SessionBuilderFactory.shared.make(Preference.default.makeURL())?.build()
+            guard let session else {
+                return
             }
-            await netStreamSwitcher.stream?.attachAudioPlayer(audioPlayer)
+            if let view = view as? (any HKStreamOutput) {
+                await session.stream.addOutput(view)
+            }
+            await session.stream.attachAudioPlayer(audioPlayer)
         }
     }
 
@@ -40,11 +41,11 @@ final class PlaybackViewController: UIViewController {
         Task {
             if button.isSelected {
                 UIApplication.shared.isIdleTimerDisabled = false
-                await netStreamSwitcher.close()
+                try? await session?.close()
                 button.setTitle("●", for: [])
             } else {
                 UIApplication.shared.isIdleTimerDisabled = true
-                await netStreamSwitcher.open(.playback)
+                try? await session?.connect(.playback)
                 button.setTitle("■", for: [])
             }
             button.isSelected.toggle()
@@ -56,9 +57,7 @@ final class PlaybackViewController: UIViewController {
         logger.info(notification)
         if pictureInPictureController?.isPictureInPictureActive == false {
             Task {
-                if let stream = await netStreamSwitcher.stream as? RTMPStream {
-                    _ = try? await stream.receiveVideo(true)
-                }
+                _ = try? await (session?.stream as? RTMPStream)?.receiveVideo(true)
             }
         }
     }
@@ -68,9 +67,7 @@ final class PlaybackViewController: UIViewController {
         logger.info(notification)
         if pictureInPictureController?.isPictureInPictureActive == false {
             Task {
-                if let stream = await netStreamSwitcher.stream as? RTMPStream {
-                    _ = try? await stream.receiveVideo(false)
-                }
+                _ = try? await (session?.stream as? RTMPStream)?.receiveVideo(false)
             }
         }
     }
