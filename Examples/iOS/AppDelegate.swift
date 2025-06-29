@@ -1,6 +1,7 @@
 import AVFoundation
 import HaishinKit
 @preconcurrency import Logboard
+import SRTHaishinKit
 import UIKit
 
 let logger = LBLogger.with("com.haishinkit.Exsample.iOS")
@@ -11,6 +12,10 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         // LBLogger.with(kHaishinKitIdentifier).level = .trace
+        Task {
+            await SessionBuilderFactory.shared.register(RTMPSessionFactory())
+            await SessionBuilderFactory.shared.register(SRTSessionFactory())
+        }
         let session = AVAudioSession.sharedInstance()
         do {
             // If you set the "mode" parameter, stereo capture is not possible, so it is left unspecified.
