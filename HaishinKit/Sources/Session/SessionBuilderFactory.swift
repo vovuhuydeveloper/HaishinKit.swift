@@ -28,7 +28,7 @@ public actor SessionBuilderFactory {
     public func register(_ factory: some SessionFactory) {
         factories.append(factory)
     }
-    
+
     func build(_ uri: URL?) -> (any Session)? {
         guard let uri else {
             return nil
