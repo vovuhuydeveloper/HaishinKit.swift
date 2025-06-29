@@ -100,9 +100,9 @@ public final actor MediaMixer {
     @MainActor
     private var cancellables: Set<AnyCancellable> = []
     private let useManualCapture: Bool
-    private lazy var audioIO = AudioCaptureUnit(session)
-    private lazy var videoIO = VideoCaptureUnit(session)
-    private lazy var session = CaptureSession()
+    public private(set)  lazy var audioIO = AudioCaptureUnit(session)
+    public private(set) lazy var videoIO = VideoCaptureUnit(session)
+    public private(set)  lazy var session = CaptureSession()
     @ScreenActor
     private lazy var displayLink = DisplayLinkChoreographer()
 
